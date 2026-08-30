@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="welfare-service" />
         <module name="revenue-service" />
+        <module name="coorporation-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -16,6 +17,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="coorporation-service" options="-parameters" />
       <module name="revenue-service" options="-parameters" />
       <module name="revenue-service (1)" options="-parameters" />
       <module name="welfare-service" options="-parameters" />
