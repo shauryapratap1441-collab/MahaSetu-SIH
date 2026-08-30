@@ -6,8 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="welfare-service" />
+        <module name="mahasetu-core" />
         <module name="revenue-service" />
+        <module name="welfare-service" />
         <module name="coorporation-service" />
       </profile>
     </annotationProcessing>
@@ -18,6 +19,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="coorporation-service" options="-parameters" />
+      <module name="mahasetu-core" options="-parameters" />
       <module name="revenue-service" options="-parameters" />
       <module name="revenue-service (1)" options="-parameters" />
       <module name="welfare-service" options="-parameters" />
