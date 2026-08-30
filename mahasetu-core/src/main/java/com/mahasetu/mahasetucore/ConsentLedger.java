@@ -1,12 +1,15 @@
 package com.mahasetu.mahasetucore;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConsentLedger {
 
-    // A single record of one consent-based data access event
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm:ss a");
+
     public static class ConsentRecord {
         public String citizenId;
         public String departmentsAccessed;
@@ -15,11 +18,10 @@ public class ConsentLedger {
         public ConsentRecord(String citizenId, String departmentsAccessed) {
             this.citizenId = citizenId;
             this.departmentsAccessed = departmentsAccessed;
-            this.timestamp = LocalDateTime.now().toString();
+            this.timestamp = LocalDateTime.now().format(FORMATTER);
         }
     }
 
-    // Shared, in-memory list of every access event so far
     private static final List<ConsentRecord> records = new ArrayList<>();
 
     public static void logAccess(String citizenId, String departmentsAccessed) {
