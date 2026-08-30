@@ -30,25 +30,21 @@ public class CitizenController {
         Map<String, Object> unifiedProfile = new HashMap<>();
 
         try {
-            // 1. Call revenue-service
             ResponseEntity<Map> revenueResponse = restTemplate.exchange(
                     "http://localhost:8081/citizen?aadhar_no=" + id,
                     HttpMethod.GET, requestEntity, Map.class);
             Map<String, String> revenueData = revenueResponse.getBody();
 
-            // 2. Call welfare-service
             ResponseEntity<Map> welfareResponse = restTemplate.exchange(
                     "http://localhost:8082/welfare-record?citizen_id=" + id,
                     HttpMethod.GET, requestEntity, Map.class);
             Map<String, String> welfareData = welfareResponse.getBody();
 
-            // 3. Call cooperation-service
             ResponseEntity<Map> coopResponse = restTemplate.exchange(
                     "http://localhost:8083/coop-record?uid=" + id,
                     HttpMethod.GET, requestEntity, Map.class);
             Map<String, String> coopData = coopResponse.getBody();
 
-            // 4. THE ADAPTER LOGIC: translate mismatched field names into one common format
             unifiedProfile.put("citizen_name", revenueData.get("name"));
             unifiedProfile.put("citizen_id", id);
             unifiedProfile.put("district", revenueData.get("district"));
@@ -58,6 +54,8 @@ public class CitizenController {
             unifiedProfile.put("cooperative_society", coopData.get("society_name"));
             unifiedProfile.put("cooperative_reg_no", coopData.get("society_reg_no"));
 
+            ConsentLedger.logAccess(id, "Revenue, Welfare, Cooperation");
+
             return new ResponseEntity<>(unifiedProfile, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -65,5 +63,10 @@ public class CitizenController {
             error.put("error", "Failed to fetch unified profile: " + e.getMessage());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/consent-log")
+    public ResponseEntity<?> getConsentLog() {
+        return new ResponseEntity<>(ConsentLedger.getAllRecords(), HttpStatus.OK);
     }
 }
