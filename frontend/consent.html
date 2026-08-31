@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MahaSetu — Consent</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* Same design tokens as citizen-picker.html — keeping these identical
+     across screens is what makes the app feel like one product instead
+     of three different pages stitched together. */
+  :root {
+    --navy: #14304C;
+    --cream: #F6F3EC;
+    --teal: #2E7D6B;
+    --teal-dark: #235c4f;
+    --gold: #C6923B;
+    --ink: #1A1D1F;
+    --ink-soft: #5B6470;
+    --border: #D8D2C4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 18px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  header .wordmark {
+    font-family: 'Newsreader', serif;
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  header .tagline {
+    font-size: 13px;
+    color: #C9D3DC;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  /* Shows who we're getting consent for, pulled from screen 1.
+     This is a small strip, not a big card — it's context, not
+     the main event of this screen. */
+  .citizen-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .citizen-strip .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .citizen-strip .label {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .citizen-strip .name {
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .panel h1 {
+    font-family: 'Newsreader', serif;
+    font-weight: 500;
+    font-size: 26px;
+    margin: 0 0 6px;
+  }
+
+  .panel p.helper {
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    font-size: 15px;
+    max-width: 54ch;
+  }
+
+  /* ---------- Department consent rows ----------
+     Each row is a checkbox styled to look like a toggle-row rather
+     than a default browser checkbox — but it's still a real
+     <input type="checkbox"> under the hood, so screen readers and
+     keyboard navigation work exactly as expected. */
+  .dept-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .dept-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .dept-row:hover {
+    border-color: var(--teal);
+  }
+
+  .dept-row.checked {
+    border-color: var(--gold);
+    background: #FBF4E6;
+  }
+
+  .dept-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--gold);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .dept-row .dept-name {
+    font-weight: 600;
+    font-size: 15px;
+    display: block;
+  }
+
+  .dept-row .dept-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .consent-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 16px 0 28px;
+    line-height: 1.5;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 14px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s ease, opacity 0.15s ease;
+  }
+
+  .grant {
+    flex: 1;
+    background: var(--teal);
+    color: white;
+  }
+
+  .grant:hover:not(:disabled) {
+    background: var(--teal-dark);
+  }
+
+  .grant:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .back {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--border);
+  }
+
+  .back:hover {
+    border-color: var(--ink-soft);
+  }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    padding: 16px;
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <span class="wordmark">MahaSetu</span>
+    <span class="tagline">Government of Maharashtra · Citizen Services</span>
+  </header>
+
+  <main>
+    <div class="panel">
+
+      <div class="citizen-strip">
+        <span class="avatar" id="citizenAvatar">?</span>
+        <span>
+          <span class="label" style="display:block;">Requesting records for</span>
+          <span class="name" id="citizenName">—</span>
+        </span>
+      </div>
+
+      <h1>Grant access to these departments?</h1>
+      <p class="helper">
+        MahaSetu merges records held separately by different departments.
+        Nothing is shared until you tick a department below and confirm.
+      </p>
+
+      <!-- Each row has a data-dept name and a checkbox. JS listens for
+           clicks on the row (not just the checkbox) so tapping anywhere
+           on the row toggles it — friendlier on touchscreens/kiosks. -->
+      <div class="dept-list">
+        <label class="dept-row" data-dept="Revenue">
+          <input type="checkbox" />
+          <span>
+            <span class="dept-name">Revenue Department</span>
+            <span class="dept-desc">Land records, property tax, and 7/12 extract data.</span>
+          </span>
+        </label>
+
+        <label class="dept-row" data-dept="Welfare">
+          <input type="checkbox" />
+          <span>
+            <span class="dept-name">Welfare Department</span>
+            <span class="dept-desc">Pension status, ration card, and scheme enrolments.</span>
+          </span>
+        </label>
+
+        <label class="dept-row" data-dept="Cooperation">
+          <input type="checkbox" />
+          <span>
+            <span class="dept-name">Cooperation Department</span>
+            <span class="dept-desc">Cooperative society membership and loan records.</span>
+          </span>
+        </label>
+      </div>
+
+      <p class="consent-note">
+        You can withdraw this consent at any time from your MahaSetu account.
+        Departments you don't select here will not be contacted.
+      </p>
+
+      <div class="actions">
+        <button class="back" id="backBtn" type="button">Back</button>
+        <button class="grant" id="grantBtn" type="button" disabled>Grant access</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>MahaSetu Prototype — Smart India Hackathon</footer>
+
+  <script>
+    // ---------- Step 1: figure out who we're getting consent for ----------
+    // If citizen-picker.html already saved a selection to localStorage,
+    // read it here. If someone opens this page directly (e.g. while
+    // testing), fall back to a placeholder so the page doesn't break.
+    const stored = localStorage.getItem('selectedCitizen');
+    const citizen = stored ? JSON.parse(stored) : { name: 'Ramesh', id: 'MH-2291-0143' };
+
+    document.getElementById('citizenName').textContent = `${citizen.name} · ${citizen.id}`;
+    document.getElementById('citizenAvatar').textContent = citizen.name.charAt(0);
+
+    // ---------- Step 2: handle department checkboxes ----------
+    const rows = document.querySelectorAll('.dept-row');
+    const grantBtn = document.getElementById('grantBtn');
+
+    // Keeps track of which departments are currently checked.
+    const grantedDepts = new Set();
+
+    rows.forEach(row => {
+      const checkbox = row.querySelector('input[type="checkbox"]');
+
+      // Clicking the <label> already toggles the checkbox natively
+      // (that's what <label> + <input> gives you for free). We just
+      // listen for the resulting 'change' event to update our styling
+      // and state.
+      checkbox.addEventListener('change', () => {
+        const dept = row.dataset.dept;
+
+        if (checkbox.checked) {
+          row.classList.add('checked');
+          grantedDepts.add(dept);
+        } else {
+          row.classList.remove('checked');
+          grantedDepts.delete(dept);
+        }
+
+        // Require at least one department before "Grant access" works.
+        grantBtn.disabled = grantedDepts.size === 0;
+      });
+    });
+
+    // ---------- Step 3: handle the buttons ----------
+    document.getElementById('backBtn').addEventListener('click', () => {
+      window.location.href = 'citizen-picker.html';
+    });
+
+    document.getElementById('grantBtn').addEventListener('click', () => {
+      // Save the consent decision so the results dashboard (screen 3)
+      // knows which departments to "merge" data from.
+      const consent = {
+        citizen: citizen,
+        departments: Array.from(grantedDepts),
+        grantedAt: new Date().toISOString()
+      };
+      localStorage.setItem('consent', JSON.stringify(consent));
+
+      // Screen 3 (results dashboard) doesn't exist yet — swap this
+      // alert for: window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+
+</body>
+</html>
