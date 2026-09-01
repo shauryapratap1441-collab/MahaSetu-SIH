@@ -88,7 +88,6 @@
     max-width: 780px;
   }
 
-  /* ---------- Citizen summary strip ---------- */
   .citizen-summary {
     display: flex;
     align-items: center;
@@ -126,7 +125,6 @@
     color: var(--ink-soft);
   }
 
-  /* Small pill showing how many departments' data is merged in */
   .citizen-summary .badge {
     margin-left: auto;
     background: #EAF3F0;
@@ -144,11 +142,6 @@
     margin: 0 0 20px;
   }
 
-  /* ---------- Department data cards ----------
-     One card per department the user consented to. Each card has a
-     colored left rule instead of a full colored background — a quieter
-     way to distinguish sections than the "identical rounded card with
-     a different icon" pattern most dashboards default to. */
   .dept-cards {
     display: flex;
     flex-direction: column;
@@ -192,9 +185,6 @@
     font-weight: 500;
   }
 
-  /* ---------- Empty state ----------
-     Shown if someone lands here with no consent recorded — an
-     instruction, not a dead end. */
   .empty-state {
     background: white;
     border: 1.5px dashed var(--border);
@@ -244,88 +234,18 @@
 
   <main>
     <div class="wrap" id="wrap">
-      <!-- Everything below is filled in by JavaScript, based on what
-           was saved to localStorage on the previous two screens. -->
+      <!-- Filled in by JavaScript below, using real data from mahasetu-core -->
     </div>
   </main>
 
   <footer>MahaSetu Prototype — Smart India Hackathon</footer>
 
   <script>
-    // ---------- Fictional per-department records ----------
-    // In the real MahaSetu, this data would come from an API call to
-    // each department's backend. For this prototype, we're hardcoding
-    // plausible-looking sample records for our two test citizens so
-    // the dashboard has something real to display.
-    const departmentData = {
-      Ramesh: {
-        Revenue: {
-          title: 'Revenue Department',
-          fields: {
-            'Survey no.': '142/2A, Pune Taluka',
-            '7/12 extract': 'Available',
-            'Property tax status': 'Paid — FY 2025–26',
-            'Land classification': 'Agricultural'
-          }
-        },
-        Welfare: {
-          title: 'Welfare Department',
-          fields: {
-            'Ration card': 'APL — MH04-118827',
-            'Pension status': 'Not enrolled',
-            'Scheme enrolments': 'PM-KISAN',
-            'Last disbursement': '12 Jun 2026'
-          }
-        },
-        Cooperation: {
-          title: 'Cooperation Department',
-          fields: {
-            'Society membership': 'Vidarbha Farmers Co-op Society',
-            'Membership since': '2018',
-            'Loan status': 'Active — ₹40,000 outstanding',
-            'Last repayment': '03 Aug 2026'
-          }
-        }
-      },
-      Anjali: {
-        Revenue: {
-          title: 'Revenue Department',
-          fields: {
-            'Survey no.': '87/1B, Nagpur Taluka',
-            '7/12 extract': 'Available',
-            'Property tax status': 'Due — FY 2025–26',
-            'Land classification': 'Residential'
-          }
-        },
-        Welfare: {
-          title: 'Welfare Department',
-          fields: {
-            'Ration card': 'BPL — MH12-045591',
-            'Pension status': 'Enrolled — Widow Pension',
-            'Scheme enrolments': 'Sanjay Gandhi Niradhar Yojana',
-            'Last disbursement': '05 Aug 2026'
-          }
-        },
-        Cooperation: {
-          title: 'Cooperation Department',
-          fields: {
-            'Society membership': 'Nagpur Urban Co-op Bank',
-            'Membership since': '2021',
-            'Loan status': 'No active loans',
-            'Last repayment': '—'
-          }
-        }
-      }
-    };
-
     // ---------- Step 1: read what was decided on the previous screens ----------
     const stored = localStorage.getItem('consent');
     const wrap = document.getElementById('wrap');
 
     if (!stored) {
-      // Nobody has gone through the picker/consent flow yet — or
-      // localStorage was cleared. Show an empty state instead of a
-      // broken page.
       wrap.innerHTML = `
         <div class="empty-state">
           <p>No consent on record yet. Start from the citizen picker to continue.</p>
@@ -335,10 +255,24 @@
     } else {
       const consent = JSON.parse(stored);
       const citizen = consent.citizen;
-      const grantedDepts = consent.departments; // e.g. ["Revenue", "Welfare"]
-      const records = departmentData[citizen.name] || {};
+      const grantedDepts = consent.departments;
 
-      // ---------- Step 2: build the citizen summary strip ----------
+      // ---------- Step 2: call the real MahaSetu backend ----------
+      fetch(`http://localhost:8080/citizen-profile?id=${citizen.id}`)
+        .then(response => response.json())
+        .then(data => renderDashboard(citizen, grantedDepts, data))
+        .catch(error => {
+          wrap.innerHTML = `
+            <div class="empty-state">
+              <p>Could not reach the MahaSetu backend. Make sure mahasetu-core is running.</p>
+              <p style="font-size:12px; margin-top:8px;">${error}</p>
+            </div>
+          `;
+        });
+    }
+
+    // ---------- Step 3: render the dashboard using real backend data ----------
+    function renderDashboard(citizen, grantedDepts, data) {
       const summaryHTML = `
         <div class="citizen-summary">
           <span class="avatar">${citizen.name.charAt(0)}</span>
@@ -350,29 +284,38 @@
         </div>
       `;
 
-      // ---------- Step 3: build one card per granted department ----------
-      // .map() turns each department name into a chunk of HTML, then
-      // .join('') glues all those chunks into one string.
-      const cardsHTML = grantedDepts.map(deptName => {
-        const dept = records[deptName];
-        if (!dept) return ''; // safety check, shouldn't normally happen
-
-        const fieldsHTML = Object.entries(dept.fields).map(([label, value]) => `
-          <div class="field">
-            <div class="label">${label}</div>
-            <div class="value">${value}</div>
-          </div>
-        `).join('');
-
-        return `
+      // One possible card per department, built from the unified
+      // profile fields mahasetu-core returns. Only the departments
+      // the user actually checked on the consent screen get shown.
+      const allCards = {
+        Revenue: `
           <div class="dept-card">
-            <h2>${dept.title}</h2>
-            <div class="field-grid">${fieldsHTML}</div>
-          </div>
-        `;
-      }).join('');
+            <h2>Revenue Department</h2>
+            <div class="field-grid">
+              <div class="field"><div class="label">District</div><div class="value">${data.district}</div></div>
+              <div class="field"><div class="label">Land Record ID</div><div class="value">${data.land_record_id}</div></div>
+            </div>
+          </div>`,
+        Welfare: `
+          <div class="dept-card">
+            <h2>Welfare Department</h2>
+            <div class="field-grid">
+              <div class="field"><div class="label">Scheme</div><div class="value">${data.welfare_scheme}</div></div>
+              <div class="field"><div class="label">Scheme ID</div><div class="value">${data.welfare_scheme_id}</div></div>
+            </div>
+          </div>`,
+        Cooperation: `
+          <div class="dept-card">
+            <h2>Cooperation Department</h2>
+            <div class="field-grid">
+              <div class="field"><div class="label">Society</div><div class="value">${data.cooperative_society}</div></div>
+              <div class="field"><div class="label">Registration No.</div><div class="value">${data.cooperative_reg_no}</div></div>
+            </div>
+          </div>`
+      };
 
-      // ---------- Step 4: put it all on the page ----------
+      const cardsHTML = grantedDepts.map(dept => allCards[dept] || '').join('');
+
       wrap.innerHTML = `
         ${summaryHTML}
         <p class="section-note">Showing records merged from the departments you granted access to.</p>
