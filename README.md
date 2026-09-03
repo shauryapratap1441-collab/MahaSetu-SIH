@@ -2,7 +2,7 @@
 
 **Smart India Hackathon 2026 | Problem Statement SIH26129**
 System Integration and Interoperability among Government Digital Platforms — Government of Maharashtra
-**Theme:** Smart Automation | **Category:** Software | **Team:** innov8ors
+**Theme:** Smart Automation | **Category:** Software | **Team:** innov8ers
 
 ---
 
@@ -32,7 +32,7 @@ Government digital platforms in Maharashtra — Revenue, Social Welfare, and Coo
 |---|---|
 | Backend APIs | Java, Spring Boot |
 | Department DB simulation | SQLite / H2 (one instance per simulated department) |
-| Automation service | Python / Node.js — natural-language status queries, schema-mapping assist |
+| Frontend | HTML, CSS, JavaScript |
 | Auth | Simulated / mocked eKYC |
 | Sync | Async webhooks with polling fallback |
 
@@ -43,19 +43,22 @@ Government digital platforms in Maharashtra — Revenue, Social Welfare, and Coo
 | Anurag Kumawat | Auth + consent-ledger design |
 | Shaurya Pratap Singh | Backend APIs, department adapter logic, API Gateway / schema-matching mesh |
 | Siva Priya | Presentation & documentation |
-| Thota Roshini | Automation service (NL status queries, schema-mapping) |
+| Thota Roshini | Schema-mapping & status query logic |
 | Hemanth S | Mock department DBs, testing, demo data |
 
 ## Running Locally
 
 No public deployment link is provided for this submission — the prototype is designed to be run locally. Steps:
 
-1. Clone the repo
-2. Open the backend module in **IntelliJ IDEA**
-3. Run the Spring Boot application (`MahaSetuApplication.java` or equivalent entry point)
-4. [Add: how to start the automation service, e.g. `python app.py` / `node index.js`]
-5. [Add: how to start/serve the frontend, e.g. `npm install && npm start`]
-6. Once all services are running, open the frontend at `http://localhost:[PORT]`
+**Backend:**
+1. Open the project in **IntelliJ IDEA**
+2. Run `[EntryPointClass].java` (the class annotated `@SpringBootApplication`)
+3. Backend will start on `localhost:[PORT]`
+
+**Frontend:**
+1. Open the `frontend` folder
+2. Open `index.html` directly in a browser
+   (or serve it with a simple local server / IDE's Live Server-style extension if it needs to call the backend APIs)
 
 > **Note for evaluators:** A full walkthrough of the running application is also available in our demo video.
 
