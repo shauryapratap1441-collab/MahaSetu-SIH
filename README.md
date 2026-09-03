@@ -61,7 +61,7 @@ No public deployment link is provided for this submission — the prototype is d
 
 ## Demo Video
 
-[Add link to demo video here]
+[https://drive.google.com/file/d/1uA-IR9eecpd2dahJuIezG8B0BXR63TaS/view?usp=drive_link]
 
 ---
 
