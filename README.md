@@ -2,7 +2,7 @@
 
 **Smart India Hackathon 2026 | Problem Statement SIH26129**
 System Integration and Interoperability among Government Digital Platforms — Government of Maharashtra
-**Theme:** Smart Automation | **Category:** Software | **Team:** innov8ers
+**Theme:** Smart Automation | **Category:** Software | **Team:** innov8ors
 
 ---
 
