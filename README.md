@@ -50,15 +50,26 @@ Government digital platforms in Maharashtra — Revenue, Social Welfare, and Coo
 
 No public deployment link is provided for this submission — the prototype is designed to be run locally. Steps:
 
-**Backend:**
+The backend is split into the MahaSetu Core Engine plus one service per simulated department. All four need to be running together for the full flow to work.
+
 1. Open the project in **IntelliJ IDEA**
-2. Run `[EntryPointClass].java` (the class annotated `@SpringBootApplication`)
-3. Backend will start on `localhost:[PORT]`
+2. Run each of the following (via the run configuration dropdown or by opening the class and clicking the green run arrow):
+
+| Module | Entry Point Class |
+|---|---|
+| `mahasetu-core` | `MahasetuCoreApplication.java` (runs on `localhost:8080`) |
+| `revenue-service` | `RevenueServiceApplication.java` |
+| `welfare-service` | `WelfareServiceApplication.java` |
+| `cooperation-service` | `CooperationServiceApplication.java` |
+
+> Each department service runs on its own port — see each module's `application.properties` for the exact port.
 
 **Frontend:**
 1. Open the `frontend` folder
 2. Open `index.html` directly in a browser
    (or serve it with a simple local server / IDE's Live Server-style extension if it needs to call the backend APIs)
+
+> Start MahaSetu Core and all three department services before opening the frontend, or department-specific requests will fail.
 
 > **Note for evaluators:** A full walkthrough of the running application is also available in our demo video.
 
